@@ -5,229 +5,140 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-aFq/bzH65dt+w6FI2ooMVUpc+21e0SRygnTpmBvdBgSdnuTN7QbdgL+OapgHtvPp" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha2/dist/js/bootstrap.bundle.min.js" integrity="sha384-qKXV1j0HvMUeCBQ+QVp7JcfGl760yU08IQ+GpUo5hlbpg51QRiuqHAJz8+BrxE/N" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+
     <title>Happy Birthday!</title>
     <style>
-      :root {
-          --background-color: #1b1d20;
-          --slide-width: 344px;
-          --slide-shadow: 0 4px 20px 2px rgba(0, 0, 0, 0.4);
-          --slide-thumb-height: 3px;
-          --slide-thumb-default-color: rgba(0, 0, 0, 0.4);
-          --slide-thumb-active-color: rgba(255, 255, 255, 0.9);
+      @property --pointerColor {
+        syntax: '<color>';
+        inherits: false;
+        initial-value: #000;
       }
 
-      body {
-          background-color: var(--background-color);
-      }
-
-      img {
-          display: block;
-          max-width: 100%;
-      }
-
-      .slide {
-          box-shadow: var(--slide-width);
-          display: grid;
-          margin: 20px auto;
-          max-width: var(--slide-width);
-      }
-
-      .slide-items {
-          border-radius: 5px;
-          grid-area: 1/1;
-          overflow: hidden;
-          position: relative;
-      }
-
-      .slide-items>* {
-          opacity: 0;
-          pointer-events: none;
-          position: absolute;
-          top: 0;
-      }
-
-      .slide-items .active {
-          opacity: 1;
-          pointer-events: initial;
-          position: relative;
-      }
-
-      .slide-nav {
-          display: grid;
-          grid-area: 1/1;
-          grid-template-columns: 1fr 1fr;
-          grid-template-rows: auto 1fr;
-          z-index: 1;
-      }
-
-      .slide-thumbs {
+      body, html {
+          width: 100%;
+          height: 100%;
           display: flex;
-          grid-column: 1 / 3;
+/*          background: #fff;*/
       }
 
-      .slide-thumb-item {
-          background-color: var(--slide-thumb-default-color);
-          border-radius: 3px;
-          display: block;
-          flex: 1;
-          height: var(--slide-thumb-height);
-          margin: 5px;
-          overflow: hidden;
+
+      div {
+          position: relative;
+          display: inline;
+          margin: auto;
+          width: max(100%, 40vw);
+          font-size: 26px;
+          line-height: 1.25;
       }
 
-      .slide-thumb-item.active::after {
-          animation: thumb 5s forwards linear;
-          background-color: var(--slide-thumb-active-color);
-          border-radius: 3px;
-          content: '';
-          display: block;
-          height: inherit;
-          transform: translateX(-100%);
+      p {
+          padding: 4px 8px;
+/*          border: 1px solid #000;*/
+          display: inline-block;
       }
 
-      .slide-next,
-      .slide-prev {
-          opacity: 0;
-          -webkit-appearance: none;
-          -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+      a {
+          background: linear-gradient(90deg, transparent, transparent calc(100% - 2px), var(--pointerColor) calc(100% - 2px), var(--pointerColor));
+          background-size: 100% 70%;
+          background-position: 0 5px;
+          background-repeat: no-repeat;
+          animation: colorChange .8s linear infinite;
+          padding-right: 4px;
       }
 
-      @keyframes thumb {
-          to {
-              transform: initial;
+      span {
+        left: 0;
+        position: fixed;
+        bottom: 2%;
+        width: 100%;
+        z-index: 100;
+      }
+
+      .mask {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 9999;
+      }
+
+      @keyframes colorChange {
+          0%, 40% {
+              --pointerColor: #FFF
+          }
+          60%, 100% {
+              --pointerColor: transparent;
           }
       }
     </style>
   </head>
   <body class="">
-    <div class="container text-center">
-      <div data-slide="slide" class="slide">
-        <div class="slide-items">
-          <img src="img01.jpg" alt="Cat 1">
-          <img src="img02.png" alt="Cat 2">
-          <img src="img03.jpg" alt="Cat 3">
-          <img src="img04.png" alt="Cat 4">
-          <img src="img05.jpg" alt="Cat 4">
-          <img src="img06.jpg" alt="Cat 4">
-          <img src="img07.png" alt="Cat 4">
+    <div class="mask"></div>
+    <div class="container mt-5">
+      <div class="row">
+        <div class="col">
+          <p>
+            <a id="content"></a>
+          </p>
+          
         </div>
-        <nav class="slide-nav">
-          <div class="slide-thumbs"></div>
-          <button class="slide-prev">Previous</button>
-          <button class="slide-next">Next</button>
-        </nav>
       </div>
+      <div class="row text-center">
+        <span class="d-none" id="continue">
+          點擊空白處繼續...
+        </span>
+      </div>
+    </div>
 
-      <!-- <div id="carouselExampleIndicators" class="carousel slide carousel-fade">
-        <div class="carousel-indicators sticky-sm-top">
-          <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
-          <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="1" aria-label="Slide 2"></button>
-          <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="2" aria-label="Slide 3"></button>
-        </div>
-        <div class="carousel-inner">
-          <div class="carousel-item active">
-            <img src="img01.jpg" class="d-block w-100" alt="...">
-          </div>
-          <div class="carousel-item">
-            <img src="img02.jpg" class="d-block w-100" alt="...">
-          </div>
-          <div class="carousel-item">
-            <img src="img03.jpg" class="d-block w-100" alt="...">
-          </div>
-        </div>
-        <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="prev">
-          <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-          <span class="visually-hidden">Previous</span>
-        </button>
-        <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="next">
-          <span class="carousel-control-next-icon" aria-hidden="true"></span>
-          <span class="visually-hidden">Next</span>
-        </button>
-      </div> -->
+    <script type="text/javascript">
+      $(document).ready(function() {
+        var text = "小獅子是一個帥氣又陽光的小動物，小水豚覺得小獅子是個好人所以把自己的好閨蜜小刺蝟介紹給小獅子認識，希望小獅子的朝氣能夠感染心情不好的小刺蝟。;不久後小獅子與小刺蝟便越走越近，兩個人每天形影不離、無話不談，也漸漸對彼此產生依賴感，小獅子這才意識過來。;「我好像是喜歡上小刺蝟了！」;兩個人一起去了很多地方玩耍，小獅子會跟小刺蝟分享自己發生的事，小刺蝟也會大方的展示自己的收藏，這樣的關係也順其自然的從好朋友變成了人人稱羨的小情侶！;但小獅子發現小刺蝟時常在生氣的時候會把身上的刺豎直直不讓任何人接近，有時小獅子想嘗試抱抱小刺蝟反而被刺到受傷，小獅子非常苦惱總覺得自己好像沒有辦法接住小刺蝟陰晴不定的情緒甚至覺得小刺蝟很兇。;於是小獅子決定去問小刺蝟的好閨蜜小水豚，小水豚這才解釋到，原來小刺蝟身上會有刺是因為小刺蝟以前在外頭玩耍時被可惡的仙人掌弄受傷了，小刺蝟非常難過便下定決心將刺留在身上，不僅是給自己警惕也能順便保護自己。「這樣我不是很倒霉嗎？」小獅子說道，小水豚湊到小獅子耳邊講了一句悄悄話，說完小獅子好像瞬間明白了什麼。;從今爾後小獅子變得越來越溫柔、小獅子跟小刺蝟越來越甜蜜，不知不覺小刺蝟身上的刺也一根一根的脫落才發現原來小刺蝟根本就不是滿身帶刺、脾氣暴躁的刺蝟，而是一隻可愛的小豬🐷;小豬很滿意現在的狀態，但也很好奇為何小獅子會有如此大的改變，小獅子微微一笑又想起小水豚向他說的話。;「他的溫柔值得被發掘。」";
+        var speed = 100;
+        var container = $("#content");
+        var index = 0;
+        var n = 0;
 
-      <!-- <div class="row opacity-50">
-        <div class="col">
-          <div class="progress" role="progressbar" aria-label="Basic example" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100">
-            <div class="progress-bar bg-light" style="width: 50%"></div>
-          </div>
-        </div>
-        <div class="col">
-          <div class="progress" role="progressbar" aria-label="Basic example" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
-            <div class="progress-bar" style="width: 0%"></div>
-          </div>
-        </div>
-        <div class="col">
-          <div class="progress" role="progressbar" aria-label="Basic example" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
-            <div class="progress-bar" style="width: 0%"></div>
-          </div>
-        </div>
-      </div> -->
-
-      <script>
-        class SlideStories {
-            /** @param {string} id */
-            constructor(id) {
-                this.slide = document.querySelector(`[data-slide=${id}]`)
-                this.active = 0
-                this.init()
-            }
-
-            /** @param {Number} index */
-            activeSlide(index) {
-                this.active = index
-                this.items.forEach((item) => item.classList.remove('active'))
-                this.items[index].classList.add('active')
-                this.thumbItems.forEach((item) => item.classList.remove('active'))
-                this.thumbItems[index].classList.add('active')
-                this.autoSlide()
-            }
-
-            next() {
-                if (this.active < this.items.length - 1) {
-                    this.activeSlide(this.active + 1)
-                } else {
-                    this.activeSlide(0)
-                }
-            }
-
-            prev() {
-                if (this.active > 0) {
-                    this.activeSlide(this.active - 1)
-                } else {
-                    this.activeSlide(this.items.length - 1)
-                }
-            }
-
-            addNavigation() {
-                const nextBtn = this.slide.querySelector('.slide-next')
-                const prevBtn = this.slide.querySelector('.slide-prev')
-                nextBtn.addEventListener('click', this.next)
-                prevBtn.addEventListener('click', this.prev)
-            }
-
-            addThumbItems() {
-                this.items.forEach(() => (this.thumb.innerHTML += `<span class="slide-thumb-item"></span>`))
-                this.thumbItems = Array.from(this.thumb.children)
-            }
-
-            autoSlide() {
-                clearTimeout(this.timeout)
-                this.timeout = setTimeout(this.next, 5000)
-            }
-
-            init() {
-                this.next = this.next.bind(this)
-                this.prev = this.prev.bind(this)
-                this.items = this.slide.querySelectorAll('.slide-items > *')
-                this.thumb = this.slide.querySelector('.slide-thumbs')
-                this.addThumbItems()
-                this.activeSlide(0)
-                this.addNavigation()
-            }
+        function type() {
+          t = text.split(";")[n]
+          if (index < t.length) {
+            container.append(t[index]);
+            index++;
+            setTimeout(type, speed);
+          }else {
+            n++;
+            connnn();
+          }
         }
 
-        new SlideStories('slide')
-      </script>
-    </div>
+        $(function () {
+          var opacity = 1;
+          var timer = setInterval(function() {
+            if (opacity <= 0) {
+              opacity = 1;
+            }
+            opacity -= 0.1;
+            $("#continue").fadeTo(5,opacity);
+          },100);
+        })
+
+        function connnn() {
+          $(".mask").removeClass("d-none");
+          $("#continue").removeClass("d-none");
+          
+        }
+
+        $(".mask").click(function() {
+          $(".mask").addClass("d-none");
+          $("#continue").addClass("d-none");
+          container.text("");
+          index = 0;
+          type();
+        });
+
+        type();
+      })
+    </script>
   </body>
 </html>
