@@ -88,6 +88,10 @@
         width: 100%;
       }
 
+      .image {
+        opacity: 0;
+      }
+
       .slide {
         box-shadow: var(--slide-width);
         display: grid;
@@ -203,7 +207,7 @@
         var n = 0;
 
         function type() {
-          if (n < 2) {
+          if (n < 9) {
             t = text.split(";")[n]
             if (index < t.length) {
               container.append(t[index]);
@@ -216,6 +220,7 @@
           }else {
             $(".story").addClass("d-none");
             $(".image").removeClass("d-none");
+            $(".image").fadeTo(2000, 1);
             new SlideStories('slide');
           }
         }
