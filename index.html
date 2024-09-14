@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="zh-TW" data-bs-theme="dark">
+<html lang="zh-TW">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -15,43 +15,54 @@
         initial-value: #000;
       }
 
-      body, html {
-          width: 100%;
-          height: 100%;
-          display: flex;
-/*          background: #fff;*/
+      :root {
+        --background-color: #1b1d20;
+        --slide-width: 100%;
+        --slide-shadow: 0 4px 20px 2px rgba(0, 0, 0, 0.4);
+        --slide-thumb-height: 3px;
+        --slide-thumb-default-color: rgba(0, 0, 0, 0.4);
+        --slide-thumb-active-color: rgba(255, 255, 255, 0.9);
       }
 
+      body, html {
+        touch-action: manipulation;
+        background-color: var(--background-color);
+        width: 100%;
+        height: 100%;
+        display: flex;
+      }
 
       div {
-          position: relative;
-          display: inline;
-          margin: auto;
-          width: max(100%, 100vw);
-          font-size: 26px;
-          line-height: 1.25;
+        position: relative;
+        display: inline;
+/*        margin: auto;*/
+        width: max(100%, 100vw);
+        font-size: 26px;
+        line-height: 1.25;
       }
 
       p {
-          padding: 5% 5%;
-          display: inline-block;
+        padding: 5% 5%;
+        display: inline-block;
+        color: #b0b0b0;
       }
 
       a {
-          background: linear-gradient(90deg, transparent, transparent calc(100% - 2px), var(--pointerColor) calc(100% - 2px), var(--pointerColor));
-          background-size: 100% 70%;
-          background-position: 0 5px;
-          background-repeat: no-repeat;
-          animation: colorChange .8s linear infinite;
-          padding-right: 4px;
+        background: linear-gradient(90deg, transparent, transparent calc(100% - 2px), var(--pointerColor) calc(100% - 2px), var(--pointerColor));
+        background-size: 100% 70%;
+        background-position: 0 5px;
+        background-repeat: no-repeat;
+        animation: colorChange .8s linear infinite;
+        padding-right: 4px;
       }
 
-      span {
+      #continue {
         left: 0;
         position: fixed;
         bottom: 3%;
         width: 100%;
         z-index: 100;
+        color: #b0b0b0;
       }
 
       .mask {
@@ -64,18 +75,96 @@
       }
 
       @keyframes colorChange {
-          0%, 40% {
-              --pointerColor: #FFF
-          }
-          60%, 100% {
-              --pointerColor: transparent;
-          }
+        0%, 40% {
+            --pointerColor: #FFF
+        }
+        60%, 100% {
+            --pointerColor: transparent;
+        }
+      }
+
+      img {
+        display: block;
+        width: 100%;
+      }
+
+      .slide {
+        box-shadow: var(--slide-width);
+        display: grid;
+        margin: 0px auto;
+        max-width: var(--slide-width);
+      }
+
+      .slide-items {
+        border-radius: 5px;
+        grid-area: 1/1;
+        overflow: hidden;
+        position: relative;
+      }
+
+      .slide-items>* {
+        opacity: 0;
+        pointer-events: none;
+        position: absolute;
+        top: 0;
+      }
+
+      .slide-items .active {
+        opacity: 1;
+        pointer-events: initial;
+        position: relative;
+      }
+
+      .slide-nav {
+        display: grid;
+        grid-area: 1/1;
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: auto 1fr;
+        z-index: 1;
+      }
+
+      .slide-thumbs {
+        display: flex;
+        grid-column: 1 / 3;
+      }
+
+      .slide-thumb-item {
+        background-color: var(--slide-thumb-default-color);
+        border-radius: 3px;
+        display: block;
+        flex: 1;
+        height: var(--slide-thumb-height);
+        margin: 5px;
+        overflow: hidden;
+      }
+
+      .slide-thumb-item.active::after {
+        animation: thumb 5s forwards linear;
+        background-color: var(--slide-thumb-active-color);
+        border-radius: 3px;
+        content: '';
+        display: block;
+        height: inherit;
+        transform: translateX(-100%);
+      }
+
+      .slide-next,
+      .slide-prev {
+        opacity: 0;
+        -webkit-appearance: none;
+        -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+      }
+
+      @keyframes thumb {
+        to {
+            transform: initial;
+        }
       }
     </style>
   </head>
-  <body class="">
-    <div class="d-none mask"></div>
-    <div class="container mt-5">
+  <body>
+    <div class="mask d-none"></div>
+    <div class="container mt-5 story">
       <p>
         <a id="content"></a>
       </p>
@@ -83,6 +172,25 @@
         <span class="d-none" id="continue">
           點擊空白處繼續...
         </span>
+      </div>
+    </div>
+
+    <div class="container p-0 image d-none">
+      <div data-slide="slide" class="slide">
+        <div class="slide-items">
+          <img src="img01.jpg" alt="">
+          <img src="img02.png" alt="">
+          <img src="img03.jpg" alt="">
+          <img src="img04.png" alt="">
+          <img src="img05.jpg" alt="">
+          <img src="img06.jpg" alt="">
+          <img src="img07.png" alt="">
+        </div>
+        <nav class="slide-nav">
+          <div class="slide-thumbs"></div>
+          <button class="slide-prev">Previous</button>
+          <button class="slide-next">Next</button>
+        </nav>
       </div>
     </div>
 
@@ -95,14 +203,20 @@
         var n = 0;
 
         function type() {
-          t = text.split(";")[n]
-          if (index < t.length) {
-            container.append(t[index]);
-            index++;
-            setTimeout(type, speed);
+          if (n < 2) {
+            t = text.split(";")[n]
+            if (index < t.length) {
+              container.append(t[index]);
+              index++;
+              setTimeout(type, speed);
+            }else {
+              n++;
+              connnn();
+            }
           }else {
-            n++;
-            connnn();
+            $(".story").addClass("d-none");
+            $(".image").removeClass("d-none");
+            new SlideStories('slide');
           }
         }
 
@@ -132,6 +246,68 @@
         });
 
         type();
+
+        class SlideStories {
+          /** @param {string} id */
+          constructor(id) {
+            this.slide = document.querySelector(`[data-slide=${id}]`);
+            this.active = 0;
+            this.init();
+          }
+
+          /** @param {Number} index */
+          activeSlide(index) {
+            this.active = index;
+            this.items.forEach((item) => item.classList.remove('active'));
+            this.items[index].classList.add('active');
+            this.thumbItems.forEach((item) => item.classList.remove('active'));
+            this.thumbItems[index].classList.add('active');
+            this.autoSlide();
+          }
+
+          next() {
+            if (this.active < this.items.length - 1) {
+              this.activeSlide(this.active + 1);
+            } else {
+              this.activeSlide(0);
+            }
+          }
+
+          prev() {
+            if (this.active > 0) {
+              this.activeSlide(this.active - 1);
+            } else {
+              this.activeSlide(this.items.length - 1);
+            }
+          }
+
+          addNavigation() {
+            const nextBtn = this.slide.querySelector('.slide-next');
+            const prevBtn = this.slide.querySelector('.slide-prev');
+            nextBtn.addEventListener('click', this.next);
+            prevBtn.addEventListener('click', this.prev);
+          }
+
+          addThumbItems() {
+            this.items.forEach(() => (this.thumb.innerHTML += `<span class="slide-thumb-item"></span>`));
+            this.thumbItems = Array.from(this.thumb.children);
+          }
+
+          autoSlide() {
+            clearTimeout(this.timeout);
+            this.timeout = setTimeout(this.next, 5000);
+          }
+
+          init() {
+            this.next = this.next.bind(this);
+            this.prev = this.prev.bind(this);
+            this.items = this.slide.querySelectorAll('.slide-items > *');
+            this.thumb = this.slide.querySelector('.slide-thumbs');
+            this.addThumbItems();
+            this.activeSlide(0);
+            this.addNavigation();
+          }
+        }
       })
     </script>
   </body>
